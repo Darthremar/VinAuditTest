@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados de la Búsqueda</title>
+    <!-- Import Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Import Google Icon Font -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <div class="nav-wrapper blue">
+            <a href="#" class="brand-logo center">VinAudit</a>
+            <ul id="nav-mobile" class="left hide-on-med-and-down">
+                <li><a href="/">Buscar</a></li>
+                <li><a href="/results">Resultados</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h3 class="center-align">Resultados de la Búsqueda</h3>
+        <p class="center-align">Precio de mercado estimado: ${{ market_price }}</p>
+        <table class="highlight centered">
+            <thead>
+                <tr>
+                    <th>Vehículo</th>
+                    <th>Precio</th>
+                    <th>Kilometraje</th>
+                    <th>Ubicación</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listing in listings %}
+                <tr>
+                    <td>{{ listing[0] }} {{ listing[1] }}</td>
+                    <td>${{ listing[2] }}</td>
+                    <td>{{ listing[3] }} miles</td>
+                    <td>{{ listing[4] }}, {{ listing[5] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Import Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html> 

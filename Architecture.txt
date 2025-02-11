@@ -1,0 +1,16 @@
+
+market-value-estimator/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── models/
+│   │   ├── services/
+│   │   └── routes/
+│   ├── config/
+│   ├── scripts/
+│   └── tests/
+├── frontend/
+│   ├── static/
+│   └── templates/
+└── database/
+    └── migrations/
