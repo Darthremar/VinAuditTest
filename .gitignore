@@ -101,4 +101,11 @@ dmypy.json
 .vscode/
 .idea/
 *.sublime-workspace
-*.sublime-project 
+*.sublime-project
+
+# Ignore database files
+*.db
+*.sqlite 
+
+# Ignore all files in the backend/data directory
+database/NEWTEST-inventory-listing-2022-08-17.txt

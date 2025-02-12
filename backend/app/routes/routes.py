@@ -1,12 +1,9 @@
-from flask import Blueprint, request, render_template
-from ..services.car_service import calculate_market_price
-import psycopg2
+from flask import Blueprint, request, render_template, jsonify
+from ..services.car_service import calculate_market_price, get_sample_listings, calculate_price_based_on_mileage, query_cars
+
 
 main = Blueprint('main', __name__)
 
-def get_db_connection():
-    conn = psycopg2.connect("dbname=autos_db user=admin host=localhost password=yourpassword")
-    return conn
 
 @main.route('/', methods=['GET', 'POST'])
 def search():
@@ -16,39 +13,41 @@ def search():
         model = request.form['model']
         mileage = request.form.get('mileage', None)
         
-        conn = get_db_connection()
-        cur = conn.cursor()
+        # Calculate market price
+        market_price = calculate_market_price(year, make, model)
         
-        # Consulta para obtener el precio de mercado estimado
-        query = """
-        SELECT AVG(listing_price) FROM cars
-        WHERE year = %s AND make = %s AND model = %s
-        """
-        cur.execute(query, (year, make, model))
-        market_price = cur.fetchone()[0]
+        # Calculate price estimate based on mileage
+        price_estimate_based_on_mileage = calculate_price_based_on_mileage(year, make, model, mileage)
         
-        # Consulta para obtener las muestras de listados
-        query = """
-        SELECT make, model, listing_price, listing_mileage, dealer_city, dealer_state
-        FROM cars
-        WHERE year = %s AND make = %s AND model = %s
-        LIMIT 100
-        """
-        cur.execute(query, (year, make, model))
-        listings = cur.fetchall()
+        # Format prices for display
+        market_price_display = f"${market_price:,.0f}" if market_price else "N/A"
+        price_estimate_based_on_mileage_display = f"${price_estimate_based_on_mileage:,.0f}" if price_estimate_based_on_mileage else "N/A"
         
-        cur.close()
-        conn.close()
+        # Get sample listings
+        listings = get_sample_listings(year, make, model)
         
-        return render_template('results.html', market_price=market_price, listings=listings)
+        return render_template('results.html', market_price=market_price_display, price_estimate_based_on_mileage=price_estimate_based_on_mileage_display, listings=listings)
     
     return render_template('search.html')
 
 @main.route('/results', methods=['GET', 'POST'])
 def results():
     if request.method == 'POST':
-        # Aquí iría la lógica para mostrar los resultados basados en la búsqueda
+        # logic to show results based on search
         return render_template('results.html')
     else:
-        # Si se accede con GET, simplemente muestra la página de resultados vacía o un mensaje
-        return render_template('results.html', market_price=None, listings=[]) 
+        # if accessed with GET, simply shows the empty results page or a message
+        return render_template('results.html', market_price=None, listings=[])
+
+@main.route('/query', methods=['GET', 'POST'])
+def query_view():
+    results = []
+    error_message = None
+    if request.method == 'POST':
+        query_params = request.form.to_dict()
+        offset = int(request.args.get('offset', 0))
+        try:
+            results = query_cars(query_params, offset=offset)
+        except ValueError as e:
+            error_message = str(e)
+    return render_template('query.html', results=results, error_message=error_message) 

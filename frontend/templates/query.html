@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Database Query{% endblock %}
+
+{% block content %}
+<h1>Query the Database</h1>
+<form method="post" id="queryForm">
+    <label for="make">Make:</label>
+    <input type="text" id="make" name="make">
+    <label for="model">Model:</label>
+    <input type="text" id="model" name="model">
+    <button type="submit">Search</button>
+</form>
+
+{% if error_message %}
+    <div class="error-message">{{ error_message }}</div>
+{% endif %}
+
+{% if results %}
+    <h2>Results</h2>
+    <input type="text" id="searchInput" placeholder="Search in results...">
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>VIN</th>
+                <th>Year</th>
+                <th>Make</th>
+                <th>Model</th>
+                <!-- Add more columns as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for car in results %}
+            <tr>
+                <td>{{ car.vin }}</td>
+                <td>{{ car.year }}</td>
+                <td>{{ car.make }}</td>
+                <td>{{ car.model }}</td>
+                <!-- Add more columns as needed -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination center-align">
+        <button id="prevPage" class="btn" disabled><i class="material-icons left">chevron_left</i>Previous</button>
+        <button id="nextPage" class="btn">Next<i class="material-icons right">chevron_right</i></button>
+    </div>
+{% endif %}
+{% endblock %} 
