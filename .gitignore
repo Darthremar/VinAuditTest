@@ -109,3 +109,5 @@ dmypy.json
 
 # Ignore all files in the backend/data directory
 database/NEWTEST-inventory-listing-2022-08-17.txt
+
+Runnables.txt

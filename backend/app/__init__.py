@@ -1,8 +1,4 @@
-from flask import Flask
+from .factory import AppFactory
+from .config import Config
 
-def create_app(config_class=None):
-    app = Flask(__name__)
-    if config_class:
-        app.config.from_object(config_class)
-    # Register blueprints and other setup
-    return app
+app = AppFactory.create_app(Config())

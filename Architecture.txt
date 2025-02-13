@@ -1,25 +1,112 @@
+Car Price Prediction System
+==========================
 
-market-value-estimator/
-│
-├── backend/
-│   ├── app/
-│   │   ├── __init__.py
-│   │   ├── app.py
-│   │   ├── config.py
-│   │   ├── test_config.py
-│   │   ├── wsgi.py
-│   │   ├── routes/
-│   │   └── services/
-│   ├── scripts/
-│   │   └── load_data.py
-│   └── tests/
-│       └── test_app.py
-│
-├── frontend/
-│   ├── templates/
-│   ├── static/
-│
-├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml
-└── nginx.conf
+1. Project Structure
+-------------------------
+/backend
+  /app
+    /interfaces
+      - repository.py (Base repository interfaces)
+      - database.py (Database connection interfaces)
+    /models
+      - car_basic_info.py (Basic vehicle information)
+      - dealer_info.py (Dealer information)
+      - listing_details.py (Listing details)
+      - vehicle_specs.py (Technical specifications)
+      - vehicle_status.py (Vehicle status)
+      - seller_info.py (Seller information)
+    /repositories
+      - car_repository.py (Database query implementation)
+    /services
+      - car_service.py (Car business logic)
+      - price_prediction_service.py (Price prediction services)
+    /routes
+      - routes.py (API endpoints)
+    - database.py (Database configuration)
+    - __init__.py
+
+/frontend
+  /static
+    /css
+      - styles.css
+    /js
+      - scripts.js (Client-side logic)
+  /templates
+    - base.html (Base template)
+    - search.html (Search page)
+    - results.html (Results page)
+    - query.html (Advanced query page)
+
+2. Main Components
+-------------------------
+a) Services
+   - CarService: Car operations management
+   - PricePredictionService: Price prediction
+     * Market price
+     * Mileage-based prediction
+     * State/location-based prediction
+
+b) Repositories
+   - CarRepository: Data access
+     * Filtered queries
+     * Market data
+     * Statistics
+
+c) Data Models
+   - CarBasicInfo: Basic vehicle data
+   - DealerInfo: Dealer information
+   - ListingDetails: Listing details
+   - VehicleSpecs: Technical specifications
+   - VehicleStatus: Vehicle status
+   - SellerInfo: Seller information
+
+3. Main Flows
+--------------------
+a) Price Search
+   1. User enters vehicle data
+   2. System calculates market price
+   3. System calculates mileage-based estimate
+   4. System shows similar listings
+
+b) Advanced Query
+   1. User applies filters
+   2. System returns paginated results
+   3. User can navigate results
+   4. System shows complete details
+
+4. Prediction Features
+------------------------------
+a) Considered Factors
+   - Vehicle year
+   - Make and model
+   - Mileage
+   - Location (state)
+   - Price history
+   - Vehicle condition
+
+b) Prediction Methods
+   - Market average price
+   - Mileage-based linear regression
+   - Location adjustments
+   - Local market factors
+
+5. User Interfaces
+-----------------------
+a) Search Page
+   - Simple form
+   - Main fields
+   - Immediate results
+
+b) Query Page
+   - Advanced filters
+   - Pagination
+   - Detailed view
+   - Sorting
+
+6. Technologies Used
+------------------------
+- Backend: Python/Flask
+- ORM: SQLAlchemy
+- Frontend: HTML/CSS/JavaScript
+- Database: PostgreSQL
+- Data Analysis: NumPy/Pandas

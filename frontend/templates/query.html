@@ -3,47 +3,69 @@
 {% block title %}Database Query{% endblock %}
 
 {% block content %}
-<h1>Query the Database</h1>
-<form method="post" id="queryForm">
-    <label for="make">Make:</label>
-    <input type="text" id="make" name="make">
-    <label for="model">Model:</label>
-    <input type="text" id="model" name="model">
-    <button type="submit">Search</button>
-</form>
+<div class="container">
+    <h2>Car Query</h2>
+    
+    <!-- Filtros -->
+    <form id="queryForm" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="makeInput">Make:</label>
+                    <input type="text" name="make" class="form-control" id="makeInput" placeholder="Enter make (e.g., Toyota)">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="modelInput">Model:</label>
+                    <input type="text" name="model" class="form-control" id="modelInput" placeholder="Enter model (e.g., Camry)">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="yearInput">Year:</label>
+                    <input type="number" name="year" class="form-control" id="yearInput" placeholder="Enter year (e.g., 2020)">
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Search</button>
+    </form>
 
-{% if error_message %}
-    <div class="error-message">{{ error_message }}</div>
-{% endif %}
-
-{% if results %}
-    <h2>Results</h2>
-    <input type="text" id="searchInput" placeholder="Search in results...">
-    <table id="resultsTable">
-        <thead>
-            <tr>
-                <th>VIN</th>
-                <th>Year</th>
-                <th>Make</th>
-                <th>Model</th>
-                <!-- Add more columns as needed -->
-            </tr>
-        </thead>
-        <tbody>
-            {% for car in results %}
-            <tr>
-                <td>{{ car.vin }}</td>
-                <td>{{ car.year }}</td>
-                <td>{{ car.make }}</td>
-                <td>{{ car.model }}</td>
-                <!-- Add more columns as needed -->
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <div class="pagination center-align">
-        <button id="prevPage" class="btn" disabled><i class="material-icons left">chevron_left</i>Previous</button>
-        <button id="nextPage" class="btn">Next<i class="material-icons right">chevron_right</i></button>
+    <!-- Resultados -->
+    <div id="results">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Make</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Price</th>
+                        <th>Mileage</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody id="carsTableBody">
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <button id="prevButton" class="btn btn-secondary" disabled>
+                Previous
+            </button>
+            <span id="pageInfo">
+                Showing 0-0 of 0
+            </span>
+            <button id="nextButton" class="btn btn-secondary" disabled>
+                Next
+            </button>
+        </div>
     </div>
-{% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/query.js') }}"></script>
 {% endblock %} 

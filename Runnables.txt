@@ -1,3 +1,120 @@
-  python -m backend/app/app.py
-  python -m pytest backend/tests/test_app.py
-  python backend/scripts/load_data.py
+Development Server:
+-----------------
+# Run development server
+python -m flask run
+
+# Run development server with debug mode
+python -m flask run --debug
+
+Database:
+--------
+# Initialize database
+flask db init
+
+# Generate migration
+flask db migrate -m "migration message"
+
+# Apply migrations
+flask db upgrade
+
+Testing:
+-------
+# Run all tests
+pytest
+
+# Run tests with coverage
+pytest --cov=app tests/
+
+# Run specific test file
+pytest tests/test_price_prediction.py
+
+Production:
+----------
+# Run with gunicorn (development)
+gunicorn --config backend/gunicorn_config.py backend.wsgi:app
+
+# Run with gunicorn (production)
+gunicorn --config backend/gunicorn_config.py --daemon backend.wsgi:app
+
+# Check gunicorn status
+ps aux | grep gunicorn
+
+# Stop gunicorn
+pkill gunicorn
+
+Data Management:
+--------------
+# Load initial data
+python scripts/load_data.py
+
+# Update market data
+python scripts/update_market_data.py
+
+Code Quality:
+-----------
+# Format code
+black .
+
+# Check code style
+flake8 .
+
+Environment:
+----------
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment (Windows)
+venv\Scripts\activate
+
+# Activate virtual environment (Unix/MacOS)
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+Deployment:
+----------
+# Install Nginx
+sudo apt-get install nginx
+
+# Copy Nginx configuration
+sudo cp nginx/car_predictor.conf /etc/nginx/sites-available/
+sudo ln -s /etc/nginx/sites-available/car_predictor.conf /etc/nginx/sites-enabled/
+
+# Install Supervisor
+sudo apt-get install supervisor
+
+# Copy Supervisor configuration
+sudo cp supervisor/car_predictor.conf /etc/supervisor/conf.d/
+
+# Restart services
+sudo systemctl restart nginx
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl restart car_predictor
+
+# Check logs
+sudo tail -f /var/log/supervisor/car_predictor.err.log
+sudo tail -f /var/log/supervisor/car_predictor.out.log
+sudo tail -f /var/log/nginx/car_predictor_error.log
+
+Docker:
+-------
+# Build and start services
+docker-compose up --build -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Rebuild specific service
+docker-compose up -d --no-deps --build web
+
+# Execute commands in containers
+docker-compose exec web flask db upgrade
+docker-compose exec db psql -U postgres -d car_predictor
+
+# Check container status
+docker-compose ps

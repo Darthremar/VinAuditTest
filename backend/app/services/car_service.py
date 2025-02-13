@@ -9,6 +9,9 @@ from ..database import SessionLocal
 import numpy as np
 from sqlalchemy import func
 from sklearn.linear_model import LinearRegression
+from typing import List, Optional, Dict, Any
+from ..repositories.car_repository import CarRepository
+from .price_prediction_service import PricePredictionService
 
 def get_db():
     db = SessionLocal()
@@ -154,33 +157,47 @@ SELECT listing_price, listing_mileage, dealer_state FROM cars
 WHERE year = :year AND LOWER(make) = LOWER(:make) AND LOWER(model) = LOWER(:model) AND dealer_state = :state
 """
 
-def query_cars(query_params, offset=0, limit=100):
-    db = next(get_db())
-    query = db.query(CarBasicInfo, ListingDetails).join(ListingDetails, CarBasicInfo.vin == ListingDetails.vin)
-    
-    if 'make' in query_params and query_params['make']:
-        query = query.filter(CarBasicInfo.make.ilike(query_params['make']))
-    if 'model' in query_params and query_params['model']:
-        query = query.filter(CarBasicInfo.model.ilike(query_params['model']))
-    
-    rows = query.offset(offset).limit(limit).all()
-    
-    if not rows:
-        raise ValueError("No results found for the given query parameters.")
-    
-    return rows
+class CarService:
+    def __init__(self, car_repository: CarRepository):
+        self.repository = car_repository
+        self.price_predictor = PricePredictionService(car_repository)
 
-""" Original query for reference:
-SELECT * FROM cars
-WHERE 1=1
-"""
+    def get_car_details(self, vin: str) -> Optional[Dict[str, Any]]:
+        return self.repository.get_by_vin(vin)
 
-def get_cars_with_filters(make='', model='', year=None, offset=0):
-    return query_cars({'make': make, 'model': model, 'year': year}, offset=offset)
+    def get_cars_with_filters(self, make: str = '', model: str = '', year: Optional[int] = None, offset: int = 0, limit: int = 100) -> List[Any]:
+        return self.repository.get_with_filters(make, model, year, offset, limit)
 
-""" Original query for reference:
-SELECT * FROM cars
-WHERE 1=1
-"""
+    def get_sample_listings(self, year: int, make: str, model: str, limit: int = 100) -> List[Any]:
+        return self.repository.get_sample_listings(year, make, model, limit)
+
+    def calculate_market_price(self, year: int, make: str, model: str) -> Optional[float]:
+        return self.price_predictor.calculate_market_price(year, make, model)
+
+    def calculate_price_based_on_mileage(self, year: int, make: str, model: str, mileage: int) -> Optional[float]:
+        return self.price_predictor.calculate_price_based_on_mileage(year, make, model, mileage)
+
+    def calculate_price_based_on_mileage_and_state(self, year: int, make: str, model: str, mileage: int, state: str) -> Optional[float]:
+        return self.price_predictor.calculate_price_based_on_mileage_and_state(year, make, model, mileage, state)
+
+    def query_cars(self, query_params: Dict, offset: int = 0) -> List[CarBasicInfo]:
+        return self.get_cars_with_filters(
+            make=query_params.get('make', ''),
+            model=query_params.get('model', ''),
+            year=query_params.get('year'),
+            offset=offset
+        )
+
+    def get_distinct_makes(self) -> List[str]:
+        return self.repository.get_distinct_makes()
+
+    def get_distinct_models(self) -> List[str]:
+        return self.repository.get_distinct_models()
+
+    def get_distinct_years(self) -> List[int]:
+        return self.repository.get_distinct_years()
+
+    def get_total_count(self, filters: Dict) -> int:
+        return self.repository.get_total_count(filters)
 
     
