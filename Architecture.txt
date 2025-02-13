@@ -1,16 +1,25 @@
 
 market-value-estimator/
+│
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── models/
-│   │   ├── services/
-│   │   └── routes/
-│   ├── config/
+│   │   ├── app.py
+│   │   ├── config.py
+│   │   ├── test_config.py
+│   │   ├── wsgi.py
+│   │   ├── routes/
+│   │   └── services/
 │   ├── scripts/
+│   │   └── load_data.py
 │   └── tests/
+│       └── test_app.py
+│
 ├── frontend/
+│   ├── templates/
 │   ├── static/
-│   └── templates/
-└── database/
-    └── migrations/
+│
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+└── nginx.conf

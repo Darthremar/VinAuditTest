@@ -1,0 +1,3 @@
+  python -m backend/app/app.py
+  python -m pytest backend/tests/test_app.py
+  python backend/scripts/load_data.py

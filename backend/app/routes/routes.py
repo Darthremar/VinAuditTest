@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, jsonify
+from flask import Blueprint, request, render_template
 from ..services.car_service import calculate_market_price, get_sample_listings, calculate_price_based_on_mileage, query_cars
 
 
