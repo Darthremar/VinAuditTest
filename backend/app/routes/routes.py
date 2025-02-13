@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template
-from ..services.car_service import calculate_market_price, get_sample_listings, calculate_price_based_on_mileage, query_cars
+from ..services.car_service import calculate_market_price, get_sample_listings, calculate_price_based_on_mileage, query_cars,get_cars_with_filters
 
 
 main = Blueprint('main', __name__)
@@ -50,4 +50,14 @@ def query_view():
             results = query_cars(query_params, offset=offset)
         except ValueError as e:
             error_message = str(e)
-    return render_template('query.html', results=results, error_message=error_message) 
+    return render_template('query.html', results=results, error_message=error_message)
+
+@main.route('/query', methods=['POST'])
+def query():
+    offset = request.form.get('offset', 0, type=int)
+    make = request.form.get('make', '', type=str)
+    model = request.form.get('model', '', type=str)
+    year = request.form.get('year', '', type=int)
+    
+    cars = get_cars_with_filters(make=make, model=model, year=year, offset=offset)
+    return render_template('results.html', cars=cars) 

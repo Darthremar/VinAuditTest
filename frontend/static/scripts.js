@@ -47,9 +47,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function fetchPage() {
-        fetch(`/query?offset=${offset}`, {
+        const filterForm = document.getElementById('filterForm');
+        const formData = new FormData(filterForm);
+        formData.append('offset', offset);
+
+        fetch('/query', {
             method: 'POST',
-            body: new URLSearchParams(new FormData(document.getElementById('queryForm')))
+            body: new URLSearchParams(formData)
         })
         .then(response => response.text())
         .then(data => {

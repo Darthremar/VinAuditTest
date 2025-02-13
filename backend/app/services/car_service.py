@@ -1,5 +1,10 @@
 from sqlalchemy.orm import Session
-from ..models.car_model import Car
+from ..models.car_basic_info import CarBasicInfo
+from ..models.dealer_info import DealerInfo
+from ..models.listing_details import ListingDetails
+from ..models.vehicle_specs import VehicleSpecs
+from ..models.vehicle_status import VehicleStatus
+from ..models.seller_info import SellerInfo
 from ..database import SessionLocal
 import numpy as np
 from sqlalchemy import func
@@ -14,8 +19,20 @@ def get_db():
 
 def get_car_details(vin):
     db = next(get_db())
-    car = db.query(Car).filter(Car.vin == vin).first()
-    return car
+    car_info = db.query(CarBasicInfo).filter(CarBasicInfo.vin == vin).first()
+    dealer_info = db.query(DealerInfo).filter(DealerInfo.vin == vin).first()
+    listing_details = db.query(ListingDetails).filter(ListingDetails.vin == vin).first()
+    vehicle_specs = db.query(VehicleSpecs).filter(VehicleSpecs.vin == vin).first()
+    vehicle_status = db.query(VehicleStatus).filter(VehicleStatus.vin == vin).first()
+    seller_info = db.query(SellerInfo).filter(SellerInfo.vin == vin).first()
+    return {
+        "car_info": car_info,
+        "dealer_info": dealer_info,
+        "listing_details": listing_details,
+        "vehicle_specs": vehicle_specs,
+        "vehicle_status": vehicle_status,
+        "seller_info": seller_info
+    }
 
 """ Original query for reference:
 SELECT * FROM cars WHERE vin = :vin
@@ -24,10 +41,10 @@ SELECT * FROM cars WHERE vin = :vin
 
 def get_sample_listings(year, make, model, limit=100):
     db = next(get_db())
-    listings = db.query(Car.year, Car.make, Car.model, Car.listing_price, Car.listing_mileage, Car.dealer_city, Car.dealer_state).filter(
-        Car.year == year,
-        Car.make.ilike(make),
-        Car.model.ilike(model)
+    listings = db.query(CarBasicInfo.year, CarBasicInfo.make, CarBasicInfo.model, ListingDetails.listing_price, ListingDetails.listing_mileage, DealerInfo.dealer_city, DealerInfo.dealer_state).join(ListingDetails, CarBasicInfo.vin == ListingDetails.vin).join(DealerInfo, CarBasicInfo.vin == DealerInfo.vin).filter(
+        CarBasicInfo.year == year,
+        CarBasicInfo.make.ilike(make),
+        CarBasicInfo.model.ilike(model)
     ).limit(limit).all()
     return listings
 
@@ -40,10 +57,10 @@ LIMIT :limit
 
 def calculate_market_price(year, make, model):
     db = next(get_db())
-    market_price = db.query(func.avg(Car.listing_price)).filter(
-        Car.year == year,
-        Car.make.ilike(make),
-        Car.model.ilike(model)
+    market_price = db.query(func.avg(ListingDetails.listing_price)).join(CarBasicInfo, CarBasicInfo.vin == ListingDetails.vin).filter(
+        CarBasicInfo.year == year,
+        CarBasicInfo.make.ilike(make),
+        CarBasicInfo.model.ilike(model)
     ).scalar()
     
     return round(market_price, -2) if market_price else None
@@ -56,10 +73,10 @@ WHERE year = :year AND LOWER(make) = LOWER(:make) AND LOWER(model) = LOWER(:mode
 
 def calculate_price_based_on_mileage(year, make, model, mileage):
     db = next(get_db())
-    data = db.query(Car.listing_price, Car.listing_mileage).filter(
-        Car.year == year,
-        Car.make.ilike(make),
-        Car.model.ilike(model)
+    data = db.query(ListingDetails.listing_price, ListingDetails.listing_mileage).join(CarBasicInfo, CarBasicInfo.vin == ListingDetails.vin).filter(
+        CarBasicInfo.year == year,
+        CarBasicInfo.make.ilike(make),
+        CarBasicInfo.model.ilike(model)
     ).all()
     
     if not data or not mileage:
@@ -93,11 +110,11 @@ WHERE year = :year AND LOWER(make) = LOWER(:make) AND LOWER(model) = LOWER(:mode
 
 def calculate_price_based_on_mileage_and_state(year, make, model, mileage, state):
     db = next(get_db())
-    data = db.query(Car.listing_price, Car.listing_mileage, Car.dealer_state).filter(
-        Car.year == year,
-        Car.make.ilike(make),
-        Car.model.ilike(model),
-        Car.dealer_state == state
+    data = db.query(CarBasicInfo.listing_price, CarBasicInfo.listing_mileage, CarBasicInfo.dealer_state).filter(
+        CarBasicInfo.year == year,
+        CarBasicInfo.make.ilike(make),
+        CarBasicInfo.model.ilike(model),
+        CarBasicInfo.dealer_state == state
     ).all()
 
     if not data or not mileage:
@@ -139,12 +156,12 @@ WHERE year = :year AND LOWER(make) = LOWER(:make) AND LOWER(model) = LOWER(:mode
 
 def query_cars(query_params, offset=0, limit=100):
     db = next(get_db())
-    query = db.query(Car)
+    query = db.query(CarBasicInfo, ListingDetails).join(ListingDetails, CarBasicInfo.vin == ListingDetails.vin)
     
     if 'make' in query_params and query_params['make']:
-        query = query.filter(Car.make.ilike(query_params['make']))
+        query = query.filter(CarBasicInfo.make.ilike(query_params['make']))
     if 'model' in query_params and query_params['model']:
-        query = query.filter(Car.model.ilike(query_params['model']))
+        query = query.filter(CarBasicInfo.model.ilike(query_params['model']))
     
     rows = query.offset(offset).limit(limit).all()
     
@@ -158,3 +175,12 @@ SELECT * FROM cars
 WHERE 1=1
 """
 
+def get_cars_with_filters(make='', model='', year=None, offset=0):
+    return query_cars({'make': make, 'model': model, 'year': year}, offset=offset)
+
+""" Original query for reference:
+SELECT * FROM cars
+WHERE 1=1
+"""
+
+    

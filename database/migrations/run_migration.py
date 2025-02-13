@@ -1,5 +1,5 @@
 import psycopg2
-from ...backend.config import Config
+from backend.app.config import Config
 
 # Database connection configuration
 DATABASE_URI = Config.SQLALCHEMY_DATABASE_URI
